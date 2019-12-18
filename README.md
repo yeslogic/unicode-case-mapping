@@ -33,10 +33,12 @@ unicode-case-mapping = "0.1.0"
 `main.rs`:
 
 ```rust
-use unicode_case_mapping::{get_case_mapping, CaseMapping};
-
 fn main() {
-    assert_eq!(get_case_mapping('A'), CaseMapping::NonJoining);
+    assert_eq!(unicode_case_mapping::to_lowercase('İ'), ['i' as u32, 0x0307]);
+    assert_eq!(unicode_case_mapping::to_lowercase('ß'), [0; 2]);
+    assert_eq!(unicode_case_mapping::to_uppercase('ß'), ['S' as u32, 'S' as u32, 0]);
+    assert_eq!(unicode_case_mapping::to_titlecase('ß'), ['S' as u32, 's' as u32, 0]);
+    assert_eq!(unicode_case_mapping::to_titlecase('-'), [0; 3]);
 }
 ```
 
@@ -51,7 +53,7 @@ You should almost certainly use the standard library, unless:
   database (UCD).
 * You need lower level access to the mapping table data, compared to the iterator
   interface supplied by the standard library.
-* You _need_ faster performance that the standard library.
+* You _need_ faster performance than the standard library.
 
 An additional motivation for creating this crate was to be able to version the
 UCD data used independent of the Rust version. This allows us to ensure all
