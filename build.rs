@@ -9,7 +9,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use block::{Block, LAST_INDEX};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use tables::{CASE_MAPPING_LOWERCASE, CASE_MAPPING_TITLECASE, CASE_MAPPING_UPPERCASE};
 
 const SHIFT: u32 = block::LAST_INDEX.count_ones();
@@ -79,9 +79,14 @@ fn compile_mappings() -> (Vec<Row>, BTreeMap<u32, usize>) {
     // Return the big table and a map from codepoint to offset within the table
     let mut mappings = Vec::new();
     let mut offsets = BTreeMap::new();
+    let mut codepoints: BTreeSet<_>  = CASE_MAPPING_LOWERCASE.iter().map(|(cp, _)| *cp).collect();
+    codepoints.extend(CASE_MAPPING_UPPERCASE.iter().map(|(cp, _)| cp));
+    codepoints.extend(CASE_MAPPING_TITLECASE.iter().map(|(cp, _)| cp));
+    let start = *codepoints.iter().next().unwrap();
+    let end = *codepoints.iter().last().unwrap();
 
     // for each code point lookup all the tables, create a row, add it to mappings
-    for ch in 0..=(std::char::MAX as u32) {
+    for ch in start..=end {
         let lowercase = lookup(ch, CASE_MAPPING_LOWERCASE)
             .map(|mapping| {
                 let mut array = [0; 2];
@@ -199,7 +204,7 @@ fn lookup(codepoint: u32, table: &'static [(u32, &'static [u32])]) -> Option<&'s
 }
 
 mod block {
-    pub const SIZE: usize = 256;
+    pub const SIZE: usize = 32;
     pub const LAST_INDEX: usize = SIZE - 1;
 
     use super::Row;
