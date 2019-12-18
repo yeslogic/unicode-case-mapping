@@ -1,0 +1,28 @@
+[package]
+name = "unicode-case-mapping"
+version = "0.1.0"
+authors = ["YesLogic Pty. Ltd. <info@yeslogic.com>"]
+edition = "2018"
+
+homepage = "https://github.com/yeslogic/unicode-case-mapping"
+documentation = "https://docs.rs/crate/unicode-case-mapping"
+repository = "https://github.com/yeslogic/unicode-case-mapping"
+
+readme = "README.md"
+license = "Apache-2.0"
+
+description = "Fast lowercase, uppercase, and titlecase mapping for characters"
+keywords = ["unicode", "case", "lowercase", "uppercase", "titlecase"]
+categories = ["text-processing"]
+
+[badges]
+travis-ci = { repository = "yeslogic/unicode-case-mapping" }
+
+[dependencies]
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "mapping"
+harness = false
