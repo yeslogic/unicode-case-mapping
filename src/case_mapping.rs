@@ -29,8 +29,9 @@ pub fn to_titlecase(chr: char) -> [u32; 3] {
 
 fn lookup(u: u32) -> &'static Row {
     if u <= LAST_CODEPOINT {
-        return &CASE_MAPPING_BLOCKS
+        let index = CASE_MAPPING_BLOCKS
             [CASE_MAPPING_BLOCK_OFFSETS[u as usize >> SHIFT] as usize + (u as usize & MASK)];
+        return &CASE_MAPPING_RECORDS[usize::from(index)];
     } else {
         return &([0; 2], [0; 3], [0; 3]);
     }

@@ -17,7 +17,7 @@ unicode-case-mapping
 
 <br>
 
-Fast mapping of `char` to lowercase, uppercase, or title case in Rust using
+Fast mapping of `char` to lowercase, uppercase, or titlecase in Rust using
 Unicode 12.1 data.
 
 Usage
@@ -51,30 +51,33 @@ You should almost certainly use the standard library, unless:
   database (UCD).
 * You need lower level access to the mapping table data, compared to the iterator
   interface supplied by the standard library.
-* You _need_ faster performance that then standard library.
+* You _need_ faster performance that the standard library.
 
 An additional motivation for creating this crate was to be able to version the
-UCD data used independent of the Rust version. This allows use to ensure all
-our Unicode rellated crates are all using the same UCD version.
+UCD data used independent of the Rust version. This allows us to ensure all
+our Unicode related crates are all using the same UCD version.
 
 Performance & Implementation Notes
 ----------------------------------
 
 [ucd-generate] is used to generate `tables.rs`. A build script (`build.rs`)
-compiles this into a two level look up table. The look up time is constant as
-it is just indexing into two arrays.
+compiles this into a three level look up table. The look up time is constant as
+it is just indexing into the arrays.
 
-The two level approach maps a code point to a block, then to a position within
-a block. The allows the second level of block to be duplicated, saving space.
-The code is parameterised over the block size, which must be a power of 2. The
-value in the build script is optimal for the data set.
+The multi-level approach maps a code point to a block, then to a position
+within a block, which is then the index of a record describing how to map that
+codepoint to lower, upper, and title case. This allows the data to be
+deduplicated, saving space, whilst also providing fast lookup. The code is
+parameterised over the block size, which must be a power of 2. The value in the
+build script is optimal for the data set.
 
 This approach trades off some space for faster lookups. The tables take up
-about 26KiB. Benchmarks (run with `cargo bench`) show this approach to be
-~5–10× faster than the typical binary search approach.
+about 101KiB. Benchmarks (run with `cargo bench`) show this approach to be
+~5–10× faster than the binary search approach used in the Rust standard
+library.
 
-There is still room for further size reduction. For example, by eliminating
-repeated block mappings at the end of the first level block array.
+It's possible there are further optimisations that could be made to eliminate
+some runs of repeated values in the first level array.
 
 [ucd-generate]: https://github.com/BurntSushi/ucd-generate
 [to_uppercase]: https://doc.rust-lang.org/std/primitive.char.html#method.to_uppercase

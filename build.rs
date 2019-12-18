@@ -26,6 +26,7 @@ struct CompiledTable {
     blocks: Vec<(u32, Block)>,
     address_to_block_index: Vec<(u32, usize)>,
     last_code_point: u32,
+    records: Vec<Row>,
 }
 
 fn compile_table() -> CompiledTable {
@@ -44,10 +45,10 @@ fn compile_table() -> CompiledTable {
 
     let mut block = Block::new();
     for codepoint in start..=end {
-        let mapping = *codepoint_to_mapping_index
+        let mapping_index = codepoint_to_mapping_index
             .get(&codepoint)
-            .and_then(|&mapping_index| mappings.get(mapping_index))
-            .unwrap_or(&([0; 2], [0; 3], [0; 3]));
+            .copied()
+            .unwrap_or(0);
         let block_address = (codepoint >> SHIFT).saturating_sub(1) << SHIFT;
 
         // This is the first codepoint in this block, write out the previous block
@@ -63,23 +64,26 @@ fn compile_table() -> CompiledTable {
             block.reset();
         }
 
-        block[usize::try_from(codepoint).unwrap() & block::LAST_INDEX] = mapping;
+        block[usize::try_from(codepoint).unwrap() & block::LAST_INDEX] = mapping_index;
     }
 
     CompiledTable {
         blocks,
         address_to_block_index,
         last_code_point,
+        records: mappings,
     }
 }
 
 /// collects the lower, upper, titlecase mappings into one big table, noting the offset of each
 /// code point in the table
-fn compile_mappings() -> (Vec<Row>, BTreeMap<u32, usize>) {
+fn compile_mappings() -> (Vec<Row>, BTreeMap<u32, u16>) {
     // Return the big table and a map from codepoint to offset within the table
-    let mut mappings = Vec::new();
+    let mut mappings = vec![([0; 2], [0; 3], [0; 3])];
     let mut offsets = BTreeMap::new();
-    let mut codepoints: BTreeSet<_>  = CASE_MAPPING_LOWERCASE.iter().map(|(cp, _)| *cp).collect();
+    // Add entry for empty, fallback row
+    offsets.insert(0, 0);
+    let mut codepoints: BTreeSet<_> = CASE_MAPPING_LOWERCASE.iter().map(|(cp, _)| *cp).collect();
     codepoints.extend(CASE_MAPPING_UPPERCASE.iter().map(|(cp, _)| cp));
     codepoints.extend(CASE_MAPPING_TITLECASE.iter().map(|(cp, _)| cp));
     let start = *codepoints.iter().next().unwrap();
@@ -87,29 +91,30 @@ fn compile_mappings() -> (Vec<Row>, BTreeMap<u32, usize>) {
 
     // for each code point lookup all the tables, create a row, add it to mappings
     for ch in start..=end {
-        let lowercase = lookup(ch, CASE_MAPPING_LOWERCASE)
-            .map(|mapping| {
-                let mut array = [0; 2];
-                fill(mapping, &mut array);
-                array
-            })
-            .unwrap_or([0; 2]);
-        let uppercase = lookup(ch, CASE_MAPPING_UPPERCASE)
-            .map(|mapping| {
-                let mut array = [0; 3];
-                fill(mapping, &mut array);
-                array
-            })
-            .unwrap_or([0; 3]);
-        let titlecase = lookup(ch, CASE_MAPPING_TITLECASE)
-            .map(|mapping| {
-                let mut array = [0; 3];
-                fill(mapping, &mut array);
-                array
-            })
-            .unwrap_or([0; 3]);
-        offsets.insert(ch, mappings.len());
-        mappings.push((lowercase, uppercase, titlecase));
+        let lowercase = lookup(ch, CASE_MAPPING_LOWERCASE).map(|mapping| {
+            let mut array = [0; 2];
+            fill(mapping, &mut array);
+            array
+        });
+        let uppercase = lookup(ch, CASE_MAPPING_UPPERCASE).map(|mapping| {
+            let mut array = [0; 3];
+            fill(mapping, &mut array);
+            array
+        });
+        let titlecase = lookup(ch, CASE_MAPPING_TITLECASE).map(|mapping| {
+            let mut array = [0; 3];
+            fill(mapping, &mut array);
+            array
+        });
+
+        if lowercase.is_some() || uppercase.is_some() || titlecase.is_some() {
+            offsets.insert(ch, u16::try_from(mappings.len()).unwrap());
+            mappings.push((
+                lowercase.unwrap_or([0; 2]),
+                uppercase.unwrap_or([0; 3]),
+                titlecase.unwrap_or([0; 3]),
+            ));
+        }
     }
 
     (mappings, offsets)
@@ -138,10 +143,22 @@ fn write_table(path: &Path, compiled_table: &CompiledTable) {
     .unwrap();
     writeln!(output, "\nconst BLOCK_SIZE: usize = {};", block::SIZE).unwrap();
 
+    // Write out the records
+    writeln!(
+        output,
+        "\nconst CASE_MAPPING_RECORDS: [Row; {}] = [",
+        compiled_table.records.len()
+    )
+    .unwrap();
+    for row in &compiled_table.records {
+        writeln!(output, "    {:?},", row).unwrap();
+    }
+    write!(output, "];\n\n").unwrap();
+
     // Write out the blocks in address order
     writeln!(
         output,
-        "\nconst CASE_MAPPING_BLOCKS: [Row; {}] = [",
+        "\nconst CASE_MAPPING_BLOCKS: [u16; {}] = [",
         compiled_table.blocks.len() * block::SIZE
     )
     .unwrap();
@@ -204,10 +221,9 @@ fn lookup(codepoint: u32, table: &'static [(u32, &'static [u32])]) -> Option<&'s
 }
 
 mod block {
-    pub const SIZE: usize = 32;
+    pub const SIZE: usize = 128;
     pub const LAST_INDEX: usize = SIZE - 1;
 
-    use super::Row;
     use std::ops::{Index, IndexMut};
 
     /// A fixed size block
@@ -215,29 +231,27 @@ mod block {
     /// Ideally this would be an array but that doesn't work until const generics are stabilised
     #[derive(Debug, PartialEq, Eq, Hash, Clone)]
     pub struct Block {
-        data: Vec<Row>,
+        data: Vec<u16>,
     }
 
     impl Block {
         pub fn new() -> Self {
             Block {
-                data: vec![([0; 2], [0; 3], [0; 3]); SIZE],
+                data: vec![0; SIZE],
             }
         }
 
         pub fn reset(&mut self) {
-            self.data
-                .iter_mut()
-                .for_each(|val| *val = ([0; 2], [0; 3], [0; 3]));
+            self.data.iter_mut().for_each(|val| *val = 0);
         }
 
-        pub fn iter(&self) -> impl Iterator<Item = &Row> {
+        pub fn iter(&self) -> impl Iterator<Item = &u16> {
             self.data.iter()
         }
     }
 
     impl Index<usize> for Block {
-        type Output = Row;
+        type Output = u16;
 
         fn index(&self, index: usize) -> &Self::Output {
             &self.data[index]
