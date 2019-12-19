@@ -1,4 +1,4 @@
-//! Look up the joining type for a character.
+//! Map a character to its lowercase, uppercase, or titlecase equivalent.
 //!
 //! ### Example
 //!
