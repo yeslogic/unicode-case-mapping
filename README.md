@@ -81,6 +81,6 @@ library.
 It's possible there are further optimisations that could be made to eliminate
 some runs of repeated values in the first level array.
 
-[ucd-generate]: https://github.com/BurntSushi/ucd-generate
+[ucd-generate]: https://github.com/yeslogic/ucd-generate
 [to_uppercase]: https://doc.rust-lang.org/std/primitive.char.html#method.to_uppercase
 [to_lowercase]: https://doc.rust-lang.org/std/primitive.char.html#method.to_lowercase
