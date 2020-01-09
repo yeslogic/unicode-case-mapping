@@ -10,6 +10,7 @@ unicode-case-mapping
   <a href="https://crates.io/crates/unicode-case-mapping">
     <img src="https://img.shields.io/crates/v/unicode-case-mapping.svg" alt="Version">
   </a>
+  <img src="https://img.shields.io/badge/unicode-12.1-informational" alt="Unicode Version">
   <a href="https://github.com/yeslogic/unicode-case-mapping/blob/master/LICENSE">
     <img src="https://img.shields.io/crates/l/unicode-case-mapping.svg" alt="License">
   </a>
