@@ -7,6 +7,8 @@ const SHIFT: usize = MASK.count_ones() as usize;
 ///
 /// The lowercase equivalent may be more than one code point. Unused elements in the returned
 /// array are set to 0.
+///
+/// **Note:** A result of all zeros indicates the codepoint maps to itself.
 pub fn to_lowercase(chr: char) -> [u32; 2] {
     lookup(chr as u32).0
 }
@@ -15,6 +17,8 @@ pub fn to_lowercase(chr: char) -> [u32; 2] {
 ///
 /// The uppercase equivalent may be more than one code point. Unused elements in the returned
 /// array are set to 0.
+///
+/// **Note:** A result of all zeros indicates the codepoint maps to itself.
 pub fn to_uppercase(chr: char) -> [u32; 3] {
     lookup(chr as u32).1
 }
@@ -23,6 +27,8 @@ pub fn to_uppercase(chr: char) -> [u32; 3] {
 ///
 /// The titlecase equivalent may be more than one code point. Unused elements in the returned
 /// array are set to 0.
+///
+/// **Note:** A result of all zeros indicates the codepoint maps to itself.
 pub fn to_titlecase(chr: char) -> [u32; 3] {
     lookup(chr as u32).2
 }
