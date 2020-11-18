@@ -10,7 +10,7 @@ unicode-case-mapping
   <a href="https://crates.io/crates/unicode-case-mapping">
     <img src="https://img.shields.io/crates/v/unicode-case-mapping.svg" alt="Version">
   </a>
-  <img src="https://img.shields.io/badge/unicode-12.1-informational" alt="Unicode Version">
+  <img src="https://img.shields.io/badge/unicode-13.0-informational" alt="Unicode Version">
   <a href="https://github.com/yeslogic/unicode-case-mapping/blob/master/LICENSE">
     <img src="https://img.shields.io/crates/l/unicode-case-mapping.svg" alt="License">
   </a>
@@ -19,19 +19,10 @@ unicode-case-mapping
 <br>
 
 Fast mapping of `char` to lowercase, uppercase, or titlecase in Rust using
-Unicode 12.1 data.
+Unicode 13.0 data.
 
 Usage
 -----
-
-`Cargo.toml`:
-
-```toml
-[dependencies]
-unicode-case-mapping = "0.1.0"
-```
-
-`main.rs`:
 
 ```rust
 fn main() {
@@ -81,6 +72,14 @@ library.
 
 It's possible there are further optimisations that could be made to eliminate
 some runs of repeated values in the first level array.
+
+Regenerating `tables.rs`
+------------------------
+
+1. Regenerate with `yeslogic-ucd-generate` (see header of file).
+2. Add `#[allow(dead_code)]` to each table to prevent warnings.
+3. Delete entries that map to themselves. E.g. in Vim:
+   `:g/(\(\d\+\), &\[\1\])/d`.
 
 [ucd-generate]: https://github.com/yeslogic/ucd-generate
 [to_uppercase]: https://doc.rust-lang.org/std/primitive.char.html#method.to_uppercase

@@ -10,7 +10,6 @@ use std::path::{Path, PathBuf};
 
 use block::{Block, LAST_INDEX};
 use std::collections::{BTreeMap, BTreeSet};
-use tables::{CASE_MAPPING_LOWERCASE, CASE_MAPPING_TITLECASE, CASE_MAPPING_UPPERCASE};
 
 const SHIFT: u32 = block::LAST_INDEX.count_ones();
 
@@ -83,25 +82,25 @@ fn compile_mappings() -> (Vec<Row>, BTreeMap<u32, u16>) {
     let mut offsets = BTreeMap::new();
     // Add entry for empty, fallback row
     offsets.insert(0, 0);
-    let mut codepoints: BTreeSet<_> = CASE_MAPPING_LOWERCASE.iter().map(|(cp, _)| *cp).collect();
-    codepoints.extend(CASE_MAPPING_UPPERCASE.iter().map(|(cp, _)| cp));
-    codepoints.extend(CASE_MAPPING_TITLECASE.iter().map(|(cp, _)| cp));
+    let mut codepoints: BTreeSet<_> = tables::LOWER.iter().map(|(cp, _)| *cp).collect();
+    codepoints.extend(tables::UPPER.iter().map(|(cp, _)| cp));
+    codepoints.extend(tables::TITLE.iter().map(|(cp, _)| cp));
     let start = *codepoints.iter().next().unwrap();
     let end = *codepoints.iter().last().unwrap();
 
     // for each code point lookup all the tables, create a row, add it to mappings
     for ch in start..=end {
-        let lowercase = lookup(ch, CASE_MAPPING_LOWERCASE).map(|mapping| {
+        let lowercase = lookup(ch, tables::LOWER).map(|mapping| {
             let mut array = [0; 2];
             fill(mapping, &mut array);
             array
         });
-        let uppercase = lookup(ch, CASE_MAPPING_UPPERCASE).map(|mapping| {
+        let uppercase = lookup(ch, tables::UPPER).map(|mapping| {
             let mut array = [0; 3];
             fill(mapping, &mut array);
             array
         });
-        let titlecase = lookup(ch, CASE_MAPPING_TITLECASE).map(|mapping| {
+        let titlecase = lookup(ch, tables::TITLE).map(|mapping| {
             let mut array = [0; 3];
             fill(mapping, &mut array);
             array
