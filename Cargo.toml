@@ -19,10 +19,3 @@ categories = ["text-processing"]
 travis-ci = { repository = "yeslogic/unicode-case-mapping" }
 
 [dependencies]
-
-[dev-dependencies]
-criterion = "0.3"
-
-[[bench]]
-name = "mapping"
-harness = false
