@@ -17,3 +17,10 @@ before_script:
 script:
   - cargo fmt -- --check
   - cargo test
+  - |
+    if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then
+      cargo bench
+    else
+      true
+    fi
+
