@@ -18,8 +18,8 @@ unicode-case-mapping
 
 <br>
 
-Fast mapping of `char` to lowercase, uppercase, or titlecase in Rust using
-Unicode 14.0 data.
+Fast mapping of a `char` to lowercase, uppercase, titlecase, or its simple case folding
+in Rust using Unicode 14.0 data.
 
 Usage
 -----
@@ -31,6 +31,9 @@ fn main() {
     assert_eq!(unicode_case_mapping::to_uppercase('ß'), ['S' as u32, 'S' as u32, 0]);
     assert_eq!(unicode_case_mapping::to_titlecase('ß'), ['S' as u32, 's' as u32, 0]);
     assert_eq!(unicode_case_mapping::to_titlecase('-'), [0; 3]);
+    assert_eq!(unicode_case_mapping::case_folded('I'), 'i' as u32);
+    assert_eq!(unicode_case_mapping::case_folded('ß'), 0);
+    assert_eq!(unicode_case_mapping::case_folded('ẞ'), 'ß' as u32);
 }
 ```
 
@@ -41,8 +44,8 @@ The Rust standard library supplies [to_uppercase] and [to_lowercase] methods on
 `char` so you might be wondering why this crate was created or when to use it.
 You should almost certainly use the standard library, unless:
 
-* You need support for titlecase conversion according to the Unicode character
-  database (UCD).
+* You need support for titlecase conversion or case folding according to the
+  Unicode character database (UCD).
 * You need lower level access to the mapping table data, compared to the iterator
   interface supplied by the standard library.
 * You _need_ faster performance than the standard library.
