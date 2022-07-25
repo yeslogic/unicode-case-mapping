@@ -3,15 +3,17 @@
 //! ### Example
 //!
 //! ```
+//! use std::num::NonZeroU32;
+//!
 //! // U+0307 is COMBINING DOT ABOVE
 //! assert_eq!(unicode_case_mapping::to_lowercase('İ'), ['i' as u32, 0x0307]);
 //! assert_eq!(unicode_case_mapping::to_lowercase('ß'), ['ß' as u32, 0]);
 //! assert_eq!(unicode_case_mapping::to_uppercase('ß'), ['S' as u32, 'S' as u32, 0]);
 //! assert_eq!(unicode_case_mapping::to_titlecase('ß'), ['S' as u32, 's' as u32, 0]);
 //! assert_eq!(unicode_case_mapping::to_titlecase('-'), [0; 3]);
-//! assert_eq!(unicode_case_mapping::case_folded('I'), 'i' as u32);
-//! assert_eq!(unicode_case_mapping::case_folded('ß'), 0);
-//! assert_eq!(unicode_case_mapping::case_folded('ẞ'), 'ß' as u32);
+//! assert_eq!(unicode_case_mapping::case_folded('I'), NonZeroU32::new('i' as u32));
+//! assert_eq!(unicode_case_mapping::case_folded('ß'), None);
+//! assert_eq!(unicode_case_mapping::case_folded('ẞ'), NonZeroU32::new('ß' as u32));
 //! ```
 
 mod case_folding_simple;
