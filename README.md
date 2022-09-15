@@ -10,7 +10,7 @@ unicode-case-mapping
   <a href="https://crates.io/crates/unicode-case-mapping">
     <img src="https://img.shields.io/crates/v/unicode-case-mapping.svg" alt="Version">
   </a>
-  <img src="https://img.shields.io/badge/unicode-14.0-informational" alt="Unicode Version">
+  <img src="https://img.shields.io/badge/unicode-15.0-informational" alt="Unicode Version">
   <a href="https://github.com/yeslogic/unicode-case-mapping/blob/master/LICENSE">
     <img src="https://img.shields.io/crates/l/unicode-case-mapping.svg" alt="License">
   </a>
@@ -19,7 +19,7 @@ unicode-case-mapping
 <br>
 
 Fast mapping of a `char` to lowercase, uppercase, titlecase, or its simple case folding
-in Rust using Unicode 14.0 data.
+in Rust using Unicode 15.0 data.
 
 Usage
 -----
