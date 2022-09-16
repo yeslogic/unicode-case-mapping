@@ -23,4 +23,4 @@ pub use case_mapping::{case_folded, to_lowercase, to_titlecase, to_uppercase};
 
 /// The version of [Unicode](http://www.unicode.org/)
 /// that this version of unicode-case-mapping was generated from.
-pub const UNICODE_VERSION: (u64, u64, u64) = (14, 0, 0);
+pub const UNICODE_VERSION: (u64, u64, u64) = (15, 0, 0);
