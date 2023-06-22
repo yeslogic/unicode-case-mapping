@@ -2,8 +2,8 @@ unicode-case-mapping
 ====================
 
 <div align="center">
-  <a href="https://travis-ci.com/yeslogic/unicode-case-mapping">
-    <img src="https://travis-ci.com/yeslogic/unicode-case-mapping.svg?branch=master" alt="Build Status"></a>
+  <a href="https://github.com/yeslogic/unicode-case-mapping/actions/workflows/ci.yml">
+    <img src="https://github.com/yeslogic/unicode-case-mapping/actions/workflows/ci.yml/badge.svg" alt="Build Status"></a>
   <a href="https://docs.rs/unicode-case-mapping">
     <img src="https://docs.rs/unicode-case-mapping/badge.svg" alt="Documentation">
   </a>
